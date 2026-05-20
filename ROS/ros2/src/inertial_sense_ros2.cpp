@@ -359,7 +359,7 @@ void InertialSenseROS::load_params(YAML::Node &node)
 
     bool did_ins1_enable = nh_->declare_parameter<bool>("msg/did_ins1/enable", false);
     int did_ins1_period = nh_->declare_parameter<int>("msg/did_ins1/period", 1);
-    ph.msgParams(rs_.did_ins1, "msg/did_ins1/enable", "ins_eul_uvw_ned", false, did_ins1_period, did_ins1_enable);
+    ph.msgParams(rs_.did_ins1, "did_ins1", "ins_eul_uvw_ned", false, did_ins1_period, did_ins1_enable);
 
     bool did_ins2_enable = nh_->declare_parameter<bool>("msg/did_ins2/enable", false);
     int did_ins2_period = nh_->declare_parameter<int>("msg/did_ins2/period", 1);
