@@ -5,7 +5,7 @@ namespace testing
 {
     namespace internal
     {
-#if 1 // We are using a new-enough version that these are already defined...
+#if 0 // We are using a new-enough version that these are already defined...
         enum GTestColor {
             COLOR_DEFAULT,
             COLOR_RED,
