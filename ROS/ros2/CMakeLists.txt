@@ -74,28 +74,39 @@ ament_target_dependencies(${PROJECT_NAME}_node
 )
 
 # --- gtest binary ---
-ament_add_gtest(test_${PROJECT_NAME}
-    src/inertial_sense_ros2.cpp
-    shared/src/ParamHelper.cpp
-    shared/src/RtkRover.cpp
-    shared/src/RtkBase.cpp
-    test/test_basic_unit_tests.cpp
-    test/test_client_reconnect.cpp
-    test/test_communications.cpp
-    test/gtest_helpers.h
-)
-target_include_directories(test_${PROJECT_NAME} PRIVATE shared/include)
-target_link_libraries(test_${PROJECT_NAME}
-    ${cpp_typesupport_target}
-    InertialSense::SDK
-    yaml-cpp
-    Threads::Threads
-)
-ament_target_dependencies(test_${PROJECT_NAME}
-    rclcpp std_msgs geometry_msgs nav_msgs diagnostic_msgs sensor_msgs std_srvs
-)
+if(BUILD_TESTING)
+    ament_add_gtest(test_${PROJECT_NAME}
+        src/inertial_sense_ros2.cpp
+        shared/src/ParamHelper.cpp
+        shared/src/RtkRover.cpp
+        shared/src/RtkBase.cpp
+        test/test_basic_unit_tests.cpp
+        test/test_client_reconnect.cpp
+        test/test_communications.cpp
+        test/gtest_helpers.h
+    )
+    target_include_directories(test_${PROJECT_NAME} PRIVATE shared/include)
 
-install(TARGETS ${PROJECT_NAME}_node test_${PROJECT_NAME}
+    # test/gtest_helpers.h uses gtest internals (testing::internal::ColoredPrintf)
+    # that exist in Humble's gtest but were removed in Jazzy's newer gtest.
+    if(DEFINED ENV{ROS_DISTRO} AND "$ENV{ROS_DISTRO}" STREQUAL "humble")
+        target_compile_definitions(test_${PROJECT_NAME} PRIVATE GTEST_HAS_COLORED_PRINTF)
+    endif()
+    target_link_libraries(test_${PROJECT_NAME}
+        ${cpp_typesupport_target}
+        InertialSense::SDK
+        yaml-cpp
+        Threads::Threads
+    )
+    ament_target_dependencies(test_${PROJECT_NAME}
+        rclcpp std_msgs geometry_msgs nav_msgs diagnostic_msgs sensor_msgs std_srvs
+    )
+    install(TARGETS test_${PROJECT_NAME}
+        DESTINATION lib/${PROJECT_NAME}
+    )
+endif()
+
+install(TARGETS ${PROJECT_NAME}_node
     DESTINATION lib/${PROJECT_NAME}
 )
 

@@ -1,11 +1,16 @@
 #include <gtest/gtest.h>
 
-#if 1 // ((ROS_VERSION_MAJOR == 1) && (ROS_VERSION_MINOR <= 13))
+// Older gtest exposes testing::internal::ColoredPrintf; newer gtest removed it.
+// Define GTEST_HAS_COLORED_PRINTF (e.g. via the build system) to use it.
+// if we failed to define, assume that it is a newer version and thus colored printf is not included
+#ifndef GTEST_HAS_COLORED_PRINTF
+# define GTEST_HAS_COLORED_PRINTF 0
+#endif
 namespace testing
 {
     namespace internal
     {
-#if 0 // We are using a new-enough version that these are already defined...
+#if !GTEST_HAS_COLORED_PRINTF
         enum GTestColor {
             COLOR_DEFAULT,
             COLOR_RED,
@@ -17,6 +22,7 @@ namespace testing
         extern void ColoredPrintf(GTestColor color, const char* fmt, ...);
     }
 }
+#if !GTEST_HAS_COLORED_PRINTF
 #define PRINTF(...)  do { testing::internal::ColoredPrintf(testing::internal::COLOR_GREEN, "[          ] "); testing::internal::ColoredPrintf(testing::internal::COLOR_YELLOW, __VA_ARGS__); } while(0)
 #else
 #define PRINTF(...)
