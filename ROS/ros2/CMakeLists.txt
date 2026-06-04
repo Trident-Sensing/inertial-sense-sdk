@@ -86,12 +86,6 @@ if(BUILD_TESTING)
         test/gtest_helpers.h
     )
     target_include_directories(test_${PROJECT_NAME} PRIVATE shared/include)
-
-    # test/gtest_helpers.h uses gtest internals (testing::internal::ColoredPrintf)
-    # that exist in Humble's gtest but were removed in Jazzy's newer gtest.
-    if(DEFINED ENV{ROS_DISTRO} AND "$ENV{ROS_DISTRO}" STREQUAL "humble")
-        target_compile_definitions(test_${PROJECT_NAME} PRIVATE GTEST_HAS_COLORED_PRINTF)
-    endif()
     target_link_libraries(test_${PROJECT_NAME}
         ${cpp_typesupport_target}
         InertialSense::SDK

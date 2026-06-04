@@ -1,32 +1,19 @@
 #include <gtest/gtest.h>
 
-// Older gtest exposes testing::internal::ColoredPrintf; newer gtest removed it.
-// Define GTEST_HAS_COLORED_PRINTF (e.g. via the build system) to use it.
-// if we failed to define, assume that it is a newer version and thus colored printf is not included
-#ifndef GTEST_HAS_COLORED_PRINTF
-# define GTEST_HAS_COLORED_PRINTF 0
-#endif
-namespace testing
-{
-    namespace internal
-    {
-#if !GTEST_HAS_COLORED_PRINTF
-        enum GTestColor {
-            COLOR_DEFAULT,
-            COLOR_RED,
-            COLOR_GREEN,
-            COLOR_YELLOW
-        };
-#endif
+#include <cstdio>
 
-        extern void ColoredPrintf(GTestColor color, const char* fmt, ...);
-    }
-}
-#if !GTEST_HAS_COLORED_PRINTF
-#define PRINTF(...)  do { testing::internal::ColoredPrintf(testing::internal::COLOR_GREEN, "[          ] "); testing::internal::ColoredPrintf(testing::internal::COLOR_YELLOW, __VA_ARGS__); } while(0)
-#else
-#define PRINTF(...)
-#endif
+// Colored progress output for tests. We deliberately avoid gtest's internal
+// ColoredPrintf/GTestColor: those are private implementation details that
+// differ across versions (Humble exposes them in the public header, Jazzy
+// hides them inside gtest.cc), which makes any direct use non-portable. gtest
+// itself emits color via raw ANSI escapes, so we do the same: green prefix,
+// yellow message, reset.
+#define PRINTF(...)                                  \
+    do {                                             \
+        printf("\033[0;32m[          ] \033[0;33m"); \
+        printf(__VA_ARGS__);                         \
+        printf("\033[0m");                           \
+    } while (0)
 
 // C++ stream interface
 class TestCout : public std::stringstream
